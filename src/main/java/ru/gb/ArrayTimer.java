@@ -20,7 +20,7 @@ public class ArrayTimer {
         System.out.println("Один поток. Время выполнения: " + (System.currentTimeMillis() - startTime));
     }
 
-    public void doubleThread() {
+    public void doubleThread() throws InterruptedException {
         float[] array = new float[SIZE];
         final float[] arrayFirst = new float[HALFSIZE];
         final float[] arraySecond = new float[HALFSIZE];
@@ -29,26 +29,33 @@ public class ArrayTimer {
         System.arraycopy(array, 0, arrayFirst, 0, HALFSIZE);
         System.arraycopy(array, HALFSIZE, arraySecond, 0, HALFSIZE);
 
-        new Thread() {
+        Thread thread1 = new Thread() {
             public void run() {
                 float[] a1 = calc(arrayFirst);
                 System.arraycopy(a1, 0, arrayFirst, 0, arrayFirst.length);
             }
-        }.start();
+        };
 
-        new Thread() {
+        Thread thread2 = new Thread() {
             public void run() {
                 float[] a2 = calc(arraySecond);
                 System.arraycopy(a2, 0, arraySecond, 0, arraySecond.length);
             }
-        }.start();
+        };
+
+        thread1.start();
+        thread2.start();
+        thread1.join();
+        thread2.join();
 
         System.arraycopy(arrayFirst, 0, array, 0, HALFSIZE);
         System.arraycopy(arraySecond, 0, array, HALFSIZE, HALFSIZE);
+
         System.out.println("Два потока. Время выполнения: " + (System.currentTimeMillis() - startTime));
+
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         ArrayTimer at = new ArrayTimer();
         at.oneThread();
         at.doubleThread();
